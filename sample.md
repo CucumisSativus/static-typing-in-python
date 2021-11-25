@@ -41,6 +41,7 @@ Report only old  users
 
 ## Agenda
 
+1. type annotations and primitives
 1. nominal sub typing
 1. data classes
 1. opaque types
@@ -81,9 +82,27 @@ function(Sub2())
 
 ---
 
-## Constructors are inherited
+## There can only be one constructor
 
-There is only a single constructor in the class
+```python
+class MyClass:
+    def __init__(self, attr: int) -> None:
+        self.attr = attr
+
+    def __init__(self) -> None:
+        self.attr = 10
+
+MyClass(5)
+```
+
+```
+    MyClass(5)
+TypeError: MyClass.__init__() takes 1 positional argument but 2 were given
+```
+
+---
+
+## Constructors are inherited
 
 ```python
 class Base:
@@ -96,3 +115,30 @@ class Sub(Base):
 Base(10).attr
 Sub(10).attr
 ```
+
+---
+
+## Multiple inheritance
+
+```python
+class Base1:
+    def method(self, attr: int) -> str:
+        return f"Base1 method {attr}"
+
+class Base2:
+    def method(self, attr: int) -> str:
+        return f"Base2 method {attr}"
+
+class MyClass(Base1, Base2):
+    pass
+
+print(MyClass().method(10))
+```
+
+---
+
+## Method Resolution Order (MRO)
+
+https://www.python.org/download/releases/2.3/mro/
+
+---
