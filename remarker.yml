@@ -1,0 +1,14 @@
+port: 6275
+dest: build
+out: index.html
+source: sample.md
+title: ''
+assets: ['assets']
+css: ''
+cssFiles: []
+script: ''
+scriptFiles: []
+remarkConfig: {}
+scriptFilesAfterCreate: []
+livereload: true
+livereloadPort: 35729

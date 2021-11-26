@@ -1,11 +1,4 @@
----
-theme : "solarized"
-transition: "slide"
-logoImg: "logo.png"
-slideNumber: true
-title: "Static typing (in python)"
----
-
+class: center, middle
 # Static typing (in python)
 
 ---
@@ -49,6 +42,35 @@ Report only old  users
 1. algebraic data types
 1. structural polymorphism
 1. generics
+1. type guards
+
+---
+
+## Type annotations
+
+---
+## Type inference
+
+
+```python
+def function(a: int) -> str:
+    return f"{a}"
+
+def function2(b: int) -> str:
+    return f"{b}"
+
+result1 = function(5)
+function2(result1)
+```
+
+```
+error: Argument 1 to "function2" has incompatible type 
+"str"; expected "int"
+```
+
+???
+
+Even though result1 is not explicitly typed, mypy gets the type right
 
 ---
 
@@ -56,89 +78,102 @@ Report only old  users
 
 ```python
 class Base():
-    def method1(self):
-        print("method1 in base")
+    def method(self) -> str:
+        return "str"
 
-    def method2(self):
-        print("method2 in base")
-        self.method1()
+class Sub1(Base): pass
 
-class Sub1(Base):
-    def method2(self):
-        print("method2 in Sub1")
-        self.method1()
-
-class Sub2(Base):
-    def method1(self):
-        print("method1 in sub2")
+class Other: 
+    def method(self) -> str:
+        return "other str"
 
 def function(obj: Base):
-    obj.method2()
+    obj.method()
 
 function(Sub1())
-function(Sub2())
+function(Other())
+```
 
+```
+Argument 1 to "function" has incompatible type "Other"; expected "Base"
+```
+---
+
+## Method Resolution Order (MRO) [Link](https://www.python.org/download/releases/2.3/mro/)
+
+```python
+class SuperBase1: pass
+
+class SuperBase2: pass
+
+class Base1(SuperBase1): pass
+
+class Base2(SuperBase2): pass
+
+class MyClass(Base1, Base2):pass
+
+print(MyClass.mro())
+```
+
+```
+[<class '__main__.MyClass'>, 
+<class '__main__.Base1'>, 
+<class '__main__.SuperBase1'>, 
+<class '__main__.Base2'>, 
+<class '__main__.SuperBase2'>, 
+<class 'object'>]
 ```
 
 ---
 
-## There can only be one constructor
+## Abstract Base Classes (ABC) [Link](https://www.python.org/dev/peps/pep-3119/)
 
 ```python
-class MyClass:
-    def __init__(self, attr: int) -> None:
-        self.attr = attr
+from abc import ABC, abstractmethod
 
-    def __init__(self) -> None:
-        self.attr = 10
+class Class(ABC):
+    
+    @abstractmethod
+    def method(self) -> str:
+        pass
 
-MyClass(5)
+Class()
 ```
 
 ```
-    MyClass(5)
-TypeError: MyClass.__init__() takes 1 positional argument but 2 were given
+Cannot instantiate abstract class "Class" with abstract attribute "method"
 ```
 
 ---
 
-## Constructors are inherited
+## Final [Link](https://www.python.org/dev/peps/pep-0591/)
 
 ```python
-class Base:
-    def __init__(self, attr: int) -> None:
-        self.attr = attr
+from typing import final
 
-class Sub(Base):
-    pass
+@final
+class Base: pass
 
-Base(10).attr
-Sub(10).attr
+class Derived(Base): pass
+```
+```
+Cannot inherit from final class "Base"
 ```
 
 ---
 
-## Multiple inheritance
-
 ```python
-class Base1:
-    def method(self, attr: int) -> str:
-        return f"Base1 method {attr}"
-
 class Base2:
-    def method(self, attr: int) -> str:
-        return f"Base2 method {attr}"
+    @final
+    def method(self) -> str:
+        return ""
 
-class MyClass(Base1, Base2):
-    pass
-
-print(MyClass().method(10))
+class Derived2(Base2):
+    def method(self) -> str:
+        return super().method()
 ```
 
----
-
-## Method Resolution Order (MRO)
-
-https://www.python.org/download/releases/2.3/mro/
-
----
+```
+Cannot override final attribute "method" 
+(previously declared in base class "Base2")
+```

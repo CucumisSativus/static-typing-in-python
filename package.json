@@ -1,0 +1,22 @@
+{
+  "name": "prezentacja-typowanie-python",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CucumisSativus/static-typing-in-python.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CucumisSativus/static-typing-in-python/issues"
+  },
+  "homepage": "https://github.com/CucumisSativus/static-typing-in-python#readme",
+  "dependencies": {
+    "remarker": "^1.12.1"
+  }
+}
