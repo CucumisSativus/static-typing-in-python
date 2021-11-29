@@ -177,3 +177,111 @@ class Derived2(Base2):
 Cannot override final attribute "method" 
 (previously declared in base class "Base2")
 ```
+
+---
+
+## Data classes
+
+```python
+from dataclasses import dataclass, replace
+
+@dataclass(frozen=True)
+class MyClass:
+    field1: int
+    field2: str
+
+instance = MyClass(1, 'str')
+```
+
+Product type `field1` and `field2`
+
+---
+
+### Sometimes mypy can help
+
+```python
+@dataclass(order=True)
+class Ordered:
+    field1: int
+    field2: str
+
+Ordered(1, "a") > Ordered(2, "b")
+
+
+@dataclass(order=False)
+class Unordered:
+    field1: int
+    field2: str
+
+Unordered(1, 'a') > Unordered(2, 'b')
+```
+```
+Unsupported left operand type for > ("Unordered")
+```
+
+---
+
+### But not always
+```python
+from dataclasses import dataclass, replace
+
+@dataclass(frozen=True)
+class MyClass:
+    field1: int
+    field2: str
+
+instance = MyClass(1, 'str')
+
+replaced = replace(instance, field1=2)
+replaced2 = replace(instance, field1='str') # compiles :(
+```
+---
+
+## Opaque types
+
+### Problem
+```python
+order_id = 123
+company_id = 3
+
+def find_company_order(company_id: int, order_id: int) -> str:
+    return f"company_id={company_id} order_id={order_id}"
+
+print(find_company_order(order_id, company_id))
+# => company_id=123 order_id=3
+
+```
+---
+
+### Solution
+```python
+from typing import NewType
+
+OrderId = NewType('OrderId', int)
+CompanyId = NewType('CompanyId', int)
+
+order_id = OrderId(123)
+company_id = CompanyId(3)
+def find_company_order(company_id: CompanyId, order_id: OrderId) -> str:
+    return f"company_id={company_id} order_id={order_id}"
+
+find_company_order(order_id, company_id)
+```
+```
+error: Argument 1 to "find_company_order" has incompatible type 
+"OrderId"; expected "CompanyId"
+error: Argument 2 to "find_company_order" has incompatible type 
+"CompanyId"; expected "OrderId"
+```
+
+---
+
+### Btw
+```python
+CompanyId = NewType('Companyid', int)
+```
+
+```
+error: String argument 1 "Companyid" to NewType(...) 
+does not match variable name "CompanyId"
+```
