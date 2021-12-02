@@ -39,6 +39,7 @@ Report only old  users
 1. data classes
 1. opaque types
 1. union types
+1. type guards
 1. algebraic data types
 1. structural polymorphism
 1. generics
@@ -193,7 +194,7 @@ class MyClass:
 instance = MyClass(1, 'str')
 ```
 
-Product type `field1` and `field2`
+Dataclasses are product types (`field1` and `field2`)
 
 ---
 
@@ -214,9 +215,8 @@ class Unordered:
     field2: str
 
 Unordered(1, 'a') > Unordered(2, 'b')
-```
-```
-Unsupported left operand type for > ("Unordered")
+
+# Unsupported left operand type for > ("Unordered")
 ```
 
 ---
@@ -266,12 +266,11 @@ def find_company_order(company_id: CompanyId, order_id: OrderId) -> str:
     return f"company_id={company_id} order_id={order_id}"
 
 find_company_order(order_id, company_id)
-```
-```
-error: Argument 1 to "find_company_order" has incompatible type 
-"OrderId"; expected "CompanyId"
-error: Argument 2 to "find_company_order" has incompatible type 
-"CompanyId"; expected "OrderId"
+
+# error: Argument 1 to "find_company_order" has incompatible type 
+# "OrderId"; expected "CompanyId"
+# error: Argument 2 to "find_company_order" has incompatible type 
+# "CompanyId"; expected "OrderId"
 ```
 
 ---
@@ -284,4 +283,55 @@ CompanyId = NewType('Companyid', int)
 ```
 error: String argument 1 "Companyid" to NewType(...) 
 does not match variable name "CompanyId"
+```
+
+---
+
+## Union types
+
+```python
+from dataclasses import dataclass
+from typing import Union
+
+@dataclass(frozen=True)
+class Admin:
+    email: str
+    admin_id: str
+
+@dataclass(frozen=True)
+class Employee:
+    email: str
+    employee_id: str
+
+User = Union[Admin, Employee]
+
+def print_email(user: User):
+    if isinstance(user, Admin):
+        print(user.email, user.admin_id)
+    elif isinstance(user, Employee):
+        print(user.email, user.employee_id)
+
+print_email(Admin('admin@admin.ch', 'admin1'))
+print_email(Employee('user@user.ch', 'user2'))
+```
+
+Union types are sum types (`Admin` or `Employee`)
+---
+
+## Type guards
+
+```python
+from typing import Optional
+
+def add_unsafe(number: Optional[int]) -> int:
+    return number + 1
+# error: Unsupported operand types for + ("None" and "int")
+# note: Left operand is of type "Optional[int]"
+
+
+def add(number: Optional[int]) -> int:
+    if number:
+        return number + 1
+    else:
+        return 1
 ```
