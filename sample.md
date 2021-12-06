@@ -40,10 +40,8 @@ Report only old  users
 1. opaque types
 1. union types
 1. type guards
-1. algebraic data types
 1. structural polymorphism
 1. generics
-1. type guards
 
 ---
 
@@ -318,6 +316,13 @@ print_email(Employee('user@user.ch', 'user2'))
 Union types are sum types (`Admin` or `Employee`)
 ---
 
+### Union types
+
+* good for modeling data with different shapes
+* types do not have to have a common root
+
+---
+
 ## Type guards
 
 ```python
@@ -331,7 +336,118 @@ def add_unsafe(number: Optional[int]) -> int:
 
 def add(number: Optional[int]) -> int:
     if number:
+        # mypy knows that number is not None here
         return number + 1
     else:
         return 1
+```
+
+## Exhaustiveness checking
+### Problem
+
+```python
+from typing import Union
+
+class Employee: pass
+class Manager: pass
+class Administrator: pass
+
+User = Union[Employee, Manager, Administrator]
+
+def function(user: User):
+    if isinstance(user, Employee):
+        print("Employee")
+    elif isinstance(user, Manager):
+        print("Manager")
+Success: no issues found in 1 source file
+
+```
+---
+
+### Solution [link](https://github.com/python/typing/issues/735)
+
+```python
+def assert_never(x: NoReturn) -> NoReturn:
+    raise AssertionError(f"Invalid value: {x!r}")
+
+def function(user: User):
+    if isinstance(user, Employee):
+        print("Employee")
+    elif isinstance(user, Manager):
+        print("Manager")
+    else:
+        assert_never(user)
+
+# error: Argument 1 to "assert_never" has incompatible type "Administrator"; expected "NoReturn"
+```
+---
+
+## Structural polymorphism
+
+```python
+from typing import Protocol
+from dataclasses import dataclass
+
+class WithEmail(Protocol):
+    @property
+    def email(self) -> str:
+        pass
+
+@dataclass(frozen=True)
+class Admin:
+    email: str
+    admin_id: str
+
+@dataclass(frozen=True)
+class Employee:
+    email: str
+    employee_id: str
+
+def send_email(with_email: WithEmail):
+    print(with_email.email)
+
+send_email(Admin("email", "admin_id"))
+send_email(Employee("email", "employee_id"))
+```
+---
+
+### Structural polymorphism done wrong
+
+```python
+from typing import Protocol
+from abc import abstractmethod
+from random import random
+
+class AbstractAVScanner(Protocol):
+    @abstractmethod
+    def scan(self, contents: str) -> bool:
+        pass
+
+def route(scanner: AbstractAVScanner) -> str:
+    return f"is file malicious?{scanner.scan('content')}"
+
+class EicarDetector:
+    def scan(self, content: str) -> bool:
+        return 'eicar' in content
+
+class ActualDetector:
+    def __run_av(self, content: str) -> bool:
+        # run AV, as a suprocess and take output
+        return random() > 0.5
+
+    def scan(self, content: str) -> bool:
+        return self.__run_av(content)
+
+route(EicarDetector())
+route(ActualDetector())
+```
+
+---
+
+```python
+class SealDetector:
+    def scan(self, contents: str) -> bool:
+        return "seal" in contents
+
+route(SealDetector())
 ```
