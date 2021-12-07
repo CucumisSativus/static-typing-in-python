@@ -341,6 +341,7 @@ def add(number: Optional[int]) -> int:
     else:
         return 1
 ```
+---
 
 ## Exhaustiveness checking
 ### Problem
@@ -378,7 +379,8 @@ def function(user: User):
     else:
         assert_never(user)
 
-# error: Argument 1 to "assert_never" has incompatible type "Administrator"; expected "NoReturn"
+# error: Argument 1 to "assert_never" 
+# has incompatible type "Administrator"; expected "NoReturn"
 ```
 ---
 
@@ -414,10 +416,6 @@ send_email(Employee("email", "employee_id"))
 ### Structural polymorphism done wrong
 
 ```python
-from typing import Protocol
-from abc import abstractmethod
-from random import random
-
 class AbstractAVScanner(Protocol):
     @abstractmethod
     def scan(self, contents: str) -> bool:
@@ -451,3 +449,111 @@ class SealDetector:
 
 route(SealDetector())
 ```
+
+---
+
+## Generics
+
+```python
+from typing import TypeVar, Generic
+
+T = TypeVar('T')
+
+class MyList(Generic[T]):
+    def append(self, value: T) -> None:
+        pass
+
+    def pop(self) -> T:
+        pass
+
+intlist = MyList[int]()
+intlist.append(5)
+value: int = intlist.pop()
+
+intlist.append("str")
+# argument 1 to "append" of "MyList" 
+# has incompatible type "str"; expected "int"
+
+```
+
+---
+
+### Invariant
+
+```python
+from typing import TypeVar, Generic
+
+T = TypeVar('T')
+
+class MyList(Generic[T]): pass
+
+class Animal: pass
+class Cat(Animal): pass
+
+animal_list: MyList[Animal] = MyList[Animal]()
+cats_list: MyList[Animal] = MyList[Cat]()
+# Incompatible types in assignment 
+# (expression has type "MyList[Cat]", 
+# variable has type "MyList[Animal]"
+```
+
+`Cat` is `Animal`
+
+`MyList[Cat]` is not `MyList[Animal]`
+
+---
+
+### Covariant
+
+```python
+from typing import TypeVar, Generic
+
+T = TypeVar('T', covariant=True)
+
+class MyList(Generic[T]): pass
+
+class Animal: pass
+class Cat(Animal): pass
+
+animal_list: MyList[Animal] = MyList[Animal]()
+cats_list: MyList[Animal] = MyList[Cat]()
+```
+
+`Cat` is `Animal`
+
+`MyList[Cat]` is `MyList[Animal]`
+
+---
+
+### Contravariant
+---
+```python
+T = TypeVar('T', contravariant=True)
+
+class JsonSerializer(Generic[T]):
+    def serialize(self, value: T) -> str:
+        pass
+
+class Animal: pass
+class Cat(Animal): pass
+
+class Controller(Generic[T]):
+    def __init__(self, serializer: JsonSerializer[T]) -> None:
+        self.__serializer = serializer
+    
+    def view(self, value: T) -> str:
+        return f"Page with {self.__serializer.serialize(value)}"
+
+class AnimalSerializer(JsonSerializer[Animal]):
+    def serialize(self, value: Animal) -> str:
+        return "Animal"
+
+class CatSerializer(JsonSerializer[Cat]):
+    def serialize(self, value: Cat) -> str:
+        return "Cat"       
+
+Controller[Cat](CatSerializer())
+Controller[Cat](AnimalSerializer())
+```
+
+`AnimalSerializer` can serialize `Cat`
