@@ -413,6 +413,10 @@ send_email(Employee("email", "employee_id"))
 ```
 ---
 
+* You can define polymorphic relation basing on the structure
+* You dont need to modify the type - you can use classes from libraries
+
+---
 ### Structural polymorphism done wrong
 
 ```python
@@ -449,6 +453,11 @@ class SealDetector:
 
 route(SealDetector())
 ```
+---
+### Structural polymorphism done wrong
+
+* If not paired with opaque types can really hit hard, when describing behavior
+* but it really shines with data
 
 ---
 
@@ -475,10 +484,17 @@ intlist.append("str")
 # has incompatible type "str"; expected "int"
 
 ```
+---
+### Generics
+* used when we want to have a class, that does not care about what is inside
+* gives guarantees that `T` is always the same - `MyList[int]` always work with `int`
+* generic parameter says `fill this hole to have a complete type`
+* you cannot use just `MyList`, its not a complete type
 
 ---
 
 ### Invariant
+---
 
 ```python
 from typing import TypeVar, Generic
@@ -496,10 +512,13 @@ cats_list: MyList[Animal] = MyList[Cat]()
 # (expression has type "MyList[Cat]", 
 # variable has type "MyList[Animal]"
 ```
+---
 
-`Cat` is `Animal`
+### Invariant
 
-`MyList[Cat]` is not `MyList[Animal]`
+* `Cat` is `Animal`
+* `MyList[Cat]` is not `MyList[Animal]`
+* default behaviour - does not care about relation between T and sub or super types
 
 ---
 
@@ -518,10 +537,11 @@ class Cat(Animal): pass
 animal_list: MyList[Animal] = MyList[Animal]()
 cats_list: MyList[Animal] = MyList[Cat]()
 ```
-
-`Cat` is `Animal`
-
-`MyList[Cat]` is `MyList[Animal]`
+---
+### Covariant
+* `Cat` is `Animal`
+* `MyList[Cat]` is `MyList[Animal]`
+* In mypy all the collections are in covariant
 
 ---
 
@@ -555,5 +575,10 @@ class CatSerializer(JsonSerializer[Cat]):
 Controller[Cat](CatSerializer())
 Controller[Cat](AnimalSerializer())
 ```
+---
+### Contravariant
 
-`AnimalSerializer` can serialize `Cat`
+* `Cat` is `Animal` 
+* `AnimalSerializer` can serialize `Cat`
+* used in `Callable`
+* you can pass `Cat` to `Callable[[Animal], int]`
