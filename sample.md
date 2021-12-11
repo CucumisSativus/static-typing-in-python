@@ -7,7 +7,7 @@ class: center, middle
 
 ### Michał Gutowski
 * Functional programmer, who landed in python
-* Coming from Łódź, Poland
+* Coming from Pabianice, Poland
 
 ---
 
@@ -37,7 +37,7 @@ Report only old  users
 1. type annotations and primitives
 1. nominal sub typing
 1. data classes
-1. opaque types
+1. new types
 1. union types
 1. type guards
 1. structural polymorphism
@@ -46,6 +46,22 @@ Report only old  users
 ---
 
 ## Type annotations
+```python
+def function(a: int) -> str:
+    return f"{a}"
+
+function("asdf")
+```
+
+```
+error: Argument 1 to "function" has incompatible type "str"; expected "int"
+```
+
+* no type checking happens during runtime
+* not annotated functions have type Any
+
+---
+
 
 ---
 ## Type inference
@@ -132,6 +148,7 @@ print(MyClass.mro())
 <class 'object'>]
 ```
 
+Like a tree traversal - always take the the left parent
 ---
 
 ## Abstract Base Classes (ABC) [Link](https://www.python.org/dev/peps/pep-3119/)
@@ -191,6 +208,15 @@ Cannot override final attribute "method"
 
 ---
 
+## Why would you use final?
+
+#### Classes
+* to mark that given class is not intended for inheritance
+* All the classes intended for inheritance should have a documentation how to do it [link](https://stackoverflow.com/a/218761)
+* if you are writing an internal code, and the codebase is not too big - probably an overkill
+---
+
+
 ## Data classes
 
 ```python
@@ -247,7 +273,7 @@ replaced2 = replace(instance, field1='str') # compiles :(
 ```
 ---
 
-## Opaque types
+## New Types
 
 ### Problem
 ```python
@@ -282,6 +308,7 @@ find_company_order(order_id, company_id)
 # error: Argument 2 to "find_company_order" has incompatible type 
 # "CompanyId"; expected "OrderId"
 ```
+---
 
 ---
 
@@ -468,7 +495,7 @@ route(SealDetector())
 ---
 ### Structural polymorphism done wrong
 
-* If not paired with opaque types can really hit hard, when describing behavior
+* If not paired with new types can really hit hard, when describing behavior
 * but it really shines with data
 
 ---
