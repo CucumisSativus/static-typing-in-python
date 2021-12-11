@@ -3,34 +3,6 @@ class: center, middle
 
 ---
 
-## About me
-
-### Michał Gutowski
-* Functional programmer, who landed in python
-* Coming from Pabianice, Poland
-
----
-
-## My story
-
-| <!-- -->    | <!-- -->    |
-|-------------|-------------|
-| Foo         | Bar         |
-
----
-
-```python
-    def get_latest_user_save_to_db(self):
-        user = self.call_external_service()
-        user_id = self.save_in_db(user)
-        self.report(user_id)
-        return user_id
-```
-
-Note:
-Report only old  users
-
----
 
 ## Agenda
 
@@ -63,7 +35,66 @@ error: Argument 1 to "function" has incompatible type "str"; expected "int"
 ---
 ### Any
 
+```python
+from typing import Any
 
+def function_with_any(argument: Any):
+    argument.not_existing_method()
+
+    for a in argument:
+        print(a)
+    
+    argument + 1
+```
+```
+Success: no issues found in 1 source file
+```
+---
+### Any from untyped context
+
+```python
+def not_typed(arg):
+    pass
+
+def typed(argument: int) -> str:
+    return f"arugment={argument}"
+
+typed(not_typed("arg"))
+```
+```
+Success: no issues found in 1 source file
+```
+
+---
+
+### Any
+
+* It can be considered a type that has all values and all methods [link](https://www.python.org/dev/peps/pep-0484/#the-any-type)
+* It passes the static check, but fails in runtime
+* All the functions from untyped context return and accept `Any`
+* if mypy is not able to determine typing from import, its `Any`
+* `Any` turns off type checking
+
+---
+
+## NoReturn
+
+```python
+from typing import NoReturn
+
+def method_without_return() -> NoReturn:
+    raise Exception("Boom")
+```
+
+No possibility to return
+
+---
+
+### No Return
+
+* Shows that given function do not return anything
+* Cannot create an instance of `NoReturn`
+* Can be very useful, you will see later
 
 ---
 ## Type inference
@@ -115,6 +146,7 @@ function(Other())
 Argument 1 to "function" has incompatible type "Other"; expected "Base"
 ```
 ---
+## Nominal sub typing
 
 * Public methods in base class are available in the subclass
 * Some of the behavior can be overwritten by subclasses
@@ -140,6 +172,8 @@ print(MyClass.mro())
 
 #### Question: what is the order of resolution for MyClass? 
 ---
+
+### Answer
 
 ```
 [<class '__main__.MyClass'>, 
@@ -171,12 +205,15 @@ Class()
 Cannot instantiate abstract class "Class" with abstract attribute "method"
 ```
 ---
+### Abstract Base Classes (ABC)
+
 * Great for describing behavior
 * When trying to create an instance of a class, with at least one abstract attribute, we fail
 
 ---
 
 ## Final [Link](https://www.python.org/dev/peps/pep-0591/)
+### Class
 
 ```python
 from typing import final
@@ -191,6 +228,8 @@ Cannot inherit from final class "Base"
 ```
 
 ---
+
+### Final method
 
 ```python
 class Base2:
@@ -216,6 +255,11 @@ Cannot override final attribute "method"
 * to mark that given class is not intended for inheritance
 * All the classes intended for inheritance should have a documentation how to do it [link](https://stackoverflow.com/a/218761)
 * if you are writing an internal code, and the codebase is not too big - probably an overkill
+
+#### Methods
+* when a method is used in constructor of one of the base classes
+* again, most likely an overkill for smaller codebases
+
 ---
 
 
@@ -231,9 +275,13 @@ class MyClass:
 
 instance = MyClass(1, 'str')
 ```
+---
+### Data classes
 
-Dataclasses are product types (`field1` and `field2`)
-
+* data classes are product types (`field1` and `field2`)
+* Great for modelling data
+* Frozen is a good default - unless you really need to mutate, use frozen
+* If `order=True`, pyhton will generate `__lt__()`, `__le__()`, `__gt__()`, and `__ge__()` like if it was a tuple of all fields
 ---
 
 ### Sometimes mypy can help
@@ -312,6 +360,11 @@ find_company_order(order_id, company_id)
 ```
 ---
 
+### New types
+
+* Add another level of type safety 
+* Great for documentation
+
 ---
 
 ### Btw
@@ -361,6 +414,7 @@ Union types are sum types (`Admin` or `Employee`)
 
 * good for modeling data with different shapes
 * types do not have to have a common root
+* types from external libraries can be used here as well
 
 ---
 
@@ -453,9 +507,11 @@ send_email(Admin("email", "admin_id"))
 send_email(Employee("email", "employee_id"))
 ```
 ---
+## Structural polymorphism
 
 * You can define polymorphic relation basing on the structure
 * You dont need to modify the type - you can use classes from libraries
+* Great for modeling data and extracting common data pieces from unrelated types
 
 ---
 ### Structural polymorphism done wrong
@@ -535,7 +591,6 @@ intlist.append("str")
 ---
 
 ### Invariant
----
 
 ```python
 from typing import TypeVar, Generic
@@ -587,7 +642,6 @@ cats_list: MyList[Animal] = MyList[Cat]()
 ---
 
 ### Contravariant
----
 ```python
 T = TypeVar('T', contravariant=True)
 

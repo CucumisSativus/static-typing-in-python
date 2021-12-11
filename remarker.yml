@@ -1,7 +1,7 @@
 port: 6275
 dest: build
 out: index.html
-source: sample.md
+source: slides.md
 title: ''
 assets: ['assets']
 css: ''
