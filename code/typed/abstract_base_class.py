@@ -6,4 +6,8 @@ class Class(ABC):
     def method(self) -> str:
         pass
 
-Class()
+# Class()
+
+class SubCLass(Class): pass
+
+SubCLass()

@@ -98,6 +98,12 @@ Argument 1 to "function" has incompatible type "Other"; expected "Base"
 ```
 ---
 
+* Public methods in base class are available in the subclass
+* Some of the behavior can be overwritten by subclasses
+* If not used with caution, can lead to big confusion
+
+---
+
 ## Method Resolution Order (MRO) [Link](https://www.python.org/download/releases/2.3/mro/)
 
 ```python
@@ -113,6 +119,9 @@ class MyClass(Base1, Base2):pass
 
 print(MyClass.mro())
 ```
+
+#### Question: what is the order of resolution for MyClass? 
+---
 
 ```
 [<class '__main__.MyClass'>, 
@@ -142,6 +151,9 @@ Class()
 ```
 Cannot instantiate abstract class "Class" with abstract attribute "method"
 ```
+---
+* Great for describing behavior
+* When trying to create an instance of a class, with at least one abstract attribute, we fail
 
 ---
 
