@@ -61,6 +61,8 @@ error: Argument 1 to "function" has incompatible type "str"; expected "int"
 * not annotated functions have type Any
 
 ---
+### Any
+
 
 
 ---

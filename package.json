@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/CucumisSativus/static-typing-in-python#readme",
   "dependencies": {
-    "remarker": "^1.12.1"
+    "remarker": "^1.12.1",
+    "reveal-md": "^5.3.1"
   }
 }
