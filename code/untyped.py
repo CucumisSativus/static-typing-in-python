@@ -19,3 +19,9 @@ class Service:
 
 Service().get_latest_user_save_to_db()
 
+
+def function_untyped(argument):
+    return argument
+
+a = function_untyped(4)
+a.not_existing_method("str") + 1
