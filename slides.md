@@ -1,14 +1,27 @@
 class: center, middle
-# Static typing (in python)
 
+## 8/10 most common JavaScript errors could be spotted during type check
+#### according to  "Top 10 JavaScript errors from 1000+ projects" from [rollbar](https://rollbar.com/blog/top-10-javascript-errors-from-1000-projects-and-how-to-avoid-them/#)
+
+???
+
+In 2018 ROLLBAR
 ---
 
+## About me
+
+#### Michał Gutowski
+#### Software developer at Threatray
+
+---
+class: center, middle
+
+# Static type checking in Python
+---
 
 ## Agenda
 
-1. why static typing
 1. what is mypy
-1. running and configuring mypy
 1. type annotations 
 1. special types
 1. union types
@@ -16,10 +29,36 @@ class: center, middle
 1. structural polymorphism
 1. new types
 1. problems with mypy
+
 ---
 
+## What is mypy
+
+> Mypy is a static type checker for Python 3 and Python 2.7. 
+
+* It checks the correctness of the type annotations (PEP 484 and PEP 526)
+
+--
+
+* You can install it with pip 
+
+--
+
+* It can be run on one file, multiple files or recursively over a directory
+```
+mypy program.py
+```
+--
+
+* **After type check annotations are no longer used - program is executed as standard python program**
+
+???
+
+I will tell more about type annotations later on
+---
 ## Type annotations
 ```python
+a_variable: int = 3
 def function(a: int) -> str:
     return f"{a}"
 
@@ -30,74 +69,8 @@ function("asdf")
 error: Argument 1 to "function" has incompatible type "str"; expected "int"
 ```
 
-* no type checking happens during runtime
-* not annotated functions have type Any
-
----
-### Any
-
-```python
-from typing import Any
-
-def function_with_any(argument: Any):
-    argument.not_existing_method()
-
-    for a in argument:
-        print(a)
-    
-    argument + 1
-```
-```
-Success: no issues found in 1 source file
-```
----
-### Any from untyped context
-
-```python
-def not_typed(arg):
-    pass
-
-def typed(argument: int) -> str:
-    return f"arugment={argument}"
-
-typed(not_typed("arg"))
-```
-```
-Success: no issues found in 1 source file
-```
-
 ---
 
-### Any
-
-* It can be considered a type that has all values and all methods [link](https://www.python.org/dev/peps/pep-0484/#the-any-type)
-* It passes the static check, but fails in runtime
-* All the functions from untyped context return and accept `Any`
-* if mypy is not able to determine typing from import, its `Any`
-* `Any` turns off type checking
-
----
-
-## NoReturn
-
-```python
-from typing import NoReturn
-
-def method_without_return() -> NoReturn:
-    raise Exception("Boom")
-```
-
-No possibility to return
-
----
-
-### No Return
-
-* Shows that given function do not return anything
-* Cannot create an instance of `NoReturn`
-* Can be very useful, you will see later
-
----
 ## Type inference
 
 
@@ -122,33 +95,83 @@ error: Argument 1 to "function2" has incompatible type
 Even though result1 is not explicitly typed, mypy gets the type right
 
 ---
+## Possible type annotations
+
+* numbers (`int`, `float`, `Decimal` ...)
+* strings
+* collections (`List[int]`, `Dict[str, int]`, `Set[int]` ...) - notice upper case name
+* our own classes (`BusinessReport`, `CheckoutController`...)
+* `None`
+* lambdas (`Callable[[int], str]`)
+* special types `Any` and `NoReturn`
+
+---
+### Any
+
+```python
+from typing import Any
+
+def function_with_any(argument: Any):
+    argument.not_existing_method()
+
+    for a in argument:
+        print(a)
+    
+    argument + 1
+```
+```
+Success: no issues found in 1 source file
+```
+
+---
+
+### Any
+
+* It can be considered a type that has all values and all methods [link](https://www.python.org/dev/peps/pep-0484/#the-any-type)
+* It passes the static check, but fails in runtime
+* `Any` turns off type checking
+
+---
+
+## NoReturn
+
+```python
+def method_that_returns() -> NoReturn:
+    return 1
+```
+
+error: Return statement in function which does not return
+
+---
+
+### No Return
+
+* Shows that given function do not return anything
+* Cannot create an instance of `NoReturn`
+* Can be very useful, you will see later
+
+---
+
 
 ## Union types
 
 ```python
-from dataclasses import dataclass
 from typing import Union
 
-@dataclass(frozen=True)
-class Admin:
-    email: str
-    admin_id: str
+class Admin: pass
 
-@dataclass(frozen=True)
-class Employee:
-    email: str
-    employee_id: str
+class Employee: pass
 
 User = Union[Admin, Employee]
 
-def print_email(user: User):
+def handle_login(user: User):
     if isinstance(user, Admin):
-        print(user.email, user.admin_id)
-    elif isinstance(user, Employee):
-        print(user.email, user.employee_id)
+        print("Admin login")
+    else:
+        print("User login")
 
-print_email(Admin('admin@admin.ch', 'admin1'))
-print_email(Employee('user@user.ch', 'user2'))
+handle_login(Admin())
+handle_login(Employee())
 ```
 
 ???
@@ -158,12 +181,12 @@ Union types are sum types (`Admin` or `Employee`)
 
 ### Union types
 
-* good for modeling data with different shapes
+* good for modeling data with different shapes (user is either Admin or Employee)
 * types do not have to have a common root
 * types from external libraries can be used here as well
 
----
 
+---
 ## Type guards
 
 ```python
@@ -204,6 +227,9 @@ def function(user: User):
 Success: no issues found in 1 source file
 
 ```
+???
+
+fails when passing administrator there
 ---
 
 ### Solution [link](https://github.com/python/typing/issues/735)
@@ -224,6 +250,8 @@ def function(user: User):
 # has incompatible type "Administrator"; expected "NoReturn"
 ```
 ---
+
+
 
 ## Structural polymorphism - problem
 
@@ -284,8 +312,9 @@ send_email(Employee("email", "employee_id"))
 ## Structural polymorphism
 
 * You can define polymorphic relation basing on the structure
-* You dont need to modify the type - you can use classes from libraries
+* You don't need to modify the type - you can use classes from libraries
 * Great for modeling data and extracting common data pieces from unrelated types
+* More explicit than union types
 * Big disadvantage is that you cannot track implementations - as opposed to inheritance
 
 ---
@@ -332,44 +361,6 @@ find_company_order(order_id, company_id)
 * Add another level of type safety 
 * Great for documentation
 
----
-## Sometimes mypy can help
-
-```python
-@dataclass(order=True)
-class Ordered:
-    field1: int
-    field2: str
-
-Ordered(1, "a") > Ordered(2, "b")
-
-
-@dataclass(order=False)
-class Unordered:
-    field1: int
-    field2: str
-
-Unordered(1, 'a') > Unordered(2, 'b')
-
-# Unsupported left operand type for > ("Unordered")
-```
-
----
-
-## But not always
-```python
-from dataclasses import dataclass, replace
-
-@dataclass(frozen=True)
-class MyClass:
-    field1: int
-    field2: str
-
-instance = MyClass(1, 'str')
-
-replaced = replace(instance, field1=2)
-replaced2 = replace(instance, field1='str') # compiles :(
-```
 ---
 
 ## When mypy falls short
@@ -474,3 +465,9 @@ In all those situations mypy is doing a fallback to *Any* = no type check
 
 ---
 
+## Conclusion
+
+* Type checking can spot certain classes of errors
+* mypy's type system is flexible and quite sophisticated (union types, type guards and structural polymorphism)
+* You can type your application gradually
+* But you have to remember that mypy is not doing anything for untyped code fragments

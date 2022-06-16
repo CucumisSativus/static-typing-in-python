@@ -1,23 +1,16 @@
-from dataclasses import dataclass
 from typing import Union
 
-@dataclass(frozen=True)
-class Admin:
-    email: str
-    admin_id: str
+class Admin: pass
 
-@dataclass(frozen=True)
-class Employee:
-    email: str
-    employee_id: str
+class Employee: pass
 
 User = Union[Admin, Employee]
 
-def print_email(user: User):
+def handle_login(user: User):
     if isinstance(user, Admin):
-        print(user.email, user.admin_id)
-    elif isinstance(user, Employee):
-        print(user.email, user.employee_id)
+        print("Admin login")
+    else:
+        print("User login")
 
-print_email(Admin('admin@admin.ch', 'admin1'))
-print_email(Employee('user@user.ch', 'user2'))
+handle_login(Admin())
+handle_login(Employee())
