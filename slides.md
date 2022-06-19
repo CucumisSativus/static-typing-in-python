@@ -102,6 +102,7 @@ Even though result1 is not explicitly typed, mypy gets the type right
 * collections (`List[int]`, `Dict[str, int]`, `Set[int]` ...) - notice upper case name
 * our own classes (`BusinessReport`, `CheckoutController`...)
 * `None`
+* `Optional`
 * lambdas (`Callable[[int], str]`)
 * special types `Any` and `NoReturn`
 
