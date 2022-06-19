@@ -106,7 +106,7 @@ Even though result1 is not explicitly typed, mypy gets the type right
 * special types `Any` and `NoReturn`
 
 ---
-### Any
+## Any
 
 ```python
 from typing import Any
@@ -125,7 +125,7 @@ Success: no issues found in 1 source file
 
 ---
 
-### Any
+## Any
 
 * It can be considered a type that has all values and all methods [link](https://www.python.org/dev/peps/pep-0484/#the-any-type)
 * It passes the static check, but fails in runtime
@@ -134,6 +134,7 @@ Success: no issues found in 1 source file
 ---
 
 ## NoReturn
+
 
 ```python
 def method_that_returns() -> NoReturn:
@@ -144,7 +145,7 @@ error: Return statement in function which does not return
 
 ---
 
-### No Return
+## NoReturn
 
 * Shows that given function do not return anything
 * Cannot create an instance of `NoReturn`
@@ -179,7 +180,7 @@ handle_login(Employee())
 Union types are sum types (`Admin` or `Employee`)
 ---
 
-### Union types
+## Union types
 
 * good for modeling data with different shapes (user is either Admin or Employee)
 * types do not have to have a common root
@@ -187,6 +188,13 @@ Union types are sum types (`Admin` or `Employee`)
 
 
 ---
+## Optional
+
+* `Optional[T]` is `Union[T, None]`
+* Type safe way to indicate that given type can be nullable
+
+---
+
 ## Type guards
 
 ```python
@@ -206,52 +214,6 @@ def add(number: Optional[int]) -> int:
         return 1
 ```
 ---
-
-## Exhaustiveness checking
-### Problem
-
-```python
-from typing import Union
-
-class Employee: pass
-class Manager: pass
-class Administrator: pass
-
-User = Union[Employee, Manager, Administrator]
-
-def function(user: User):
-    if isinstance(user, Employee):
-        print("Employee")
-    elif isinstance(user, Manager):
-        print("Manager")
-Success: no issues found in 1 source file
-
-```
-???
-
-fails when passing administrator there
----
-
-### Solution [link](https://github.com/python/typing/issues/735)
-
-```python
-def assert_never(x: NoReturn) -> NoReturn:
-    raise AssertionError(f"Invalid value: {x!r}")
-
-def function(user: User):
-    if isinstance(user, Employee):
-        print("Employee")
-    elif isinstance(user, Manager):
-        print("Manager")
-    else:
-        assert_never(user)
-
-# error: Argument 1 to "assert_never" 
-# has incompatible type "Administrator"; expected "NoReturn"
-```
----
-
-
 
 ## Structural polymorphism - problem
 
@@ -335,7 +297,7 @@ print(find_company_order(order_id, company_id))
 ```
 ---
 
-### Solution
+## Solution
 ```python
 from typing import NewType
 
@@ -356,7 +318,7 @@ find_company_order(order_id, company_id)
 ```
 ---
 
-### New types
+## New types
 
 * Add another level of type safety 
 * Great for documentation
@@ -428,7 +390,7 @@ Found 1 error in 1 file (checked 1 source file)
 You can download types if they exist or ignore the issue
 ---
 
-### Untyped import ignore
+## Untyped import ignore
 
 ```python
 import requests # type: ignore
@@ -441,7 +403,7 @@ Success: no issues found in 1 source file
 Note: you can globally ignore certain library in mypy config
 ---
 
-### With types installed
+## With types installed
 
 ```python
 import requests

@@ -4,3 +4,5 @@ services:
     build: .
     volumes:
       - "./build:/app/build"
+    ports:
+      - "6275:6275"
