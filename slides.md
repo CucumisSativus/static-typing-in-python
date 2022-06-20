@@ -150,7 +150,8 @@ error: Return statement in function which does not return
 
 * Shows that given function do not return anything
 * Cannot create an instance of `NoReturn`
-* Can be very useful, you will see later
+* Can be very useful, with functions that should never terminate
+* There is a technique *Exhaustivness checking* that utilzies NoReturn, but I wont be talking about it today
 
 ---
 
@@ -342,10 +343,9 @@ def function_untyped(argument):
 Success: no issues found in 1 source file
 ```
 
-??? 
+???
 
 Because of gradual typing filosophy, it fails siletly
-
 ---
 
 
@@ -360,14 +360,14 @@ a = function_untyped(4)
 a.not_existing_method("str") + 1
 
 ```
+
 ```
 Success: no issues found in 1 source file
 ```
 
-??? 
+???
 
 Because of gradual typing filosophy, it fails siletly
-
 ---
 
 ## When mypy falls short
@@ -379,10 +379,10 @@ requests.get('https://httpbin.org/basic-auth/user/pass', auth=('user', 'pass'))
 ```
 
 ```
-imports.py:1: error: Library stubs not installed for "requests" (or incompatible with Python 3.10)
-imports.py:1: note: Hint: "python3 -m pip install types-requests"
-imports.py:1: note: (or run "mypy --install-types" to install all missing stub packages)
-imports.py:1: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
+error: Library stubs not installed for "requests" (or incompatible with Python 3.10)
+note: Hint: "python3 -m pip install types-requests"
+note: (or run "mypy --install-types" to install all missing stub packages)
+note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
 Found 1 error in 1 file (checked 1 source file)
 ```
 
