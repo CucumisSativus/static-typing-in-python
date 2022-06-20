@@ -150,8 +150,7 @@ error: Return statement in function which does not return
 
 * Shows that given function do not return anything
 * Cannot create an instance of `NoReturn`
-* Can be very useful, with functions that should never terminate
-* There is a technique *Exhaustivness checking* that utilzies NoReturn, but I wont be talking about it today
+* Can be very useful, I will show it later
 
 ---
 
@@ -191,6 +190,28 @@ Union types are sum types (`Admin` or `Employee`)
 
 ---
 ## Optional
+### Problem
+
+```python
+def function() -> str:
+    return None
+
+function() + "suffix"
+```
+In runtime
+
+```
+TypeError: unsupported operand type(s) for +: 'NoneType' and 'str'
+```
+--
+
+With mypy
+```
+error: Incompatible return value type (got "None", expected "str")
+```
+
+---
+## Optional
 
 * `Optional[T]` is `Union[T, None]`
 * Type safe way to indicate that given type can be nullable
@@ -217,6 +238,49 @@ def add(number: Optional[int]) -> int:
 ```
 ---
 
+## Exhaustiveness checking
+### Problem
+
+```python
+from typing import Union
+
+class Employee: pass
+class Manager: pass
+class Administrator: pass
+
+User = Union[Employee, Manager, Administrator]
+
+def function(user: User) -> str:
+    if isinstance(user, Employee):
+        return "Employee"
+    else:
+        return "Manager"
+```
+```
+Success: no issues found in 1 source file
+
+```
+---
+
+## Exhaustiveness checking
+### Solution [link](https://github.com/python/typing/issues/735)
+
+```python
+def assert_never(x: NoReturn) -> NoReturn:
+    raise AssertionError(f"Invalid value: {x!r}")
+
+def function(user: User):
+    if isinstance(user, Employee):
+        return "Employee"
+    elif isinstance(user, Manager):
+        return "Manager"
+    else:
+        assert_never(user)
+
+# error: Argument 1 to "assert_never" 
+# has incompatible type "Administrator"; expected "NoReturn"
+```
+---
 ## Structural polymorphism - problem
 
 ```python

@@ -11,11 +11,11 @@ User = Union[Employee, Manager, Administrator]
 def assert_never(x: NoReturn) -> NoReturn:
     raise AssertionError(f"Invalid value: {x!r}")
 
-def function(user: User):
+def function(user: User) -> str:
     if isinstance(user, Employee):
-        print("Employee")
+        return "Employee"
     elif isinstance(user, Manager):
-        print("Manager")
+        return "Manager"
     else:
         assert_never(user)
 
