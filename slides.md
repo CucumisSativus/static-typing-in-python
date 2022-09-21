@@ -13,8 +13,8 @@ class: center, middle
 ## Agenda
 
 1. what is mypy
-1. type inference
 1. type annotations 
+1. type inference
 1. special types
 1. union types
 1. type guards
@@ -215,22 +215,25 @@ class: center, middle
 ## Union types
 
 ```python
+from dataclasses import dataclass
 from typing import Union
 
-class Admin: pass
+@dataclass(frozen=True)
+class Circle:
+    radius: float
 
-class Employee: pass
+@dataclass(frozen=True)
+class Rectangle:
+    side1: float
+    side2: float
 
-User = Union[Admin, Employee]
+Shape = Union[Circle, Rectangle]
 
-def handle_login(user: User):
-    if isinstance(user, Admin):
-        print("Admin login")
+def calculate_area(shape: Shape) -> float:
+    if isinstance(shape, Circle):
+        return shape.radius * shape.radius * 3.14
     else:
-        print("User login")
-
-handle_login(Admin())
-handle_login(Employee())
+        return shape.side1 * shape.side2
 ```
 
 ???
@@ -243,6 +246,7 @@ Union types are sum types (`Admin` or `Employee`)
 * good for modeling data with different shapes (user is either Admin or Employee)
 * types do not have to have a common root
 * types from external libraries can be used here as well
+* as opposed to enum they can have different constructors
 
 
 ---
@@ -301,17 +305,17 @@ def add(number: Optional[int]) -> int:
 ```python
 from typing import Union
 
-class Employee: pass
-class Manager: pass
-class Administrator: pass
+class Circle: (...)
+class Rectangle: (...)
+class Triangle: (...) 
 
-User = Union[Employee, Manager, Administrator]
+Shape = Union[Circle, Rectangle, Triangle]
 
-def function(user: User) -> str:
-    if isinstance(user, Employee):
-        return "Employee"
+def function(shape: Shape):
+    if isinstance(shape, Circle):
+        return "Circle"
     else:
-        return "Manager"
+        return "Rectangle"
 ```
 ```
 Success: no issues found in 1 source file
@@ -326,16 +330,16 @@ Success: no issues found in 1 source file
 def assert_never(x: NoReturn) -> NoReturn:
     raise AssertionError(f"Invalid value: {x!r}")
 
-def function(user: User):
-    if isinstance(user, Employee):
-        return "Employee"
-    elif isinstance(user, Manager):
-        return "Manager"
+def function(shape: Shape):
+    if isinstance(shape, Circle):
+        return "Circle"
+    elif isinstance(shape, Rectangle):
+        return "Rectangle"
     else:
-        assert_never(user)
+        assert_never(shape)
 
 # error: Argument 1 to "assert_never" 
-# has incompatible type "Administrator"; expected "NoReturn"
+# has incompatible type "Triangle"; expected "NoReturn"
 ```
 ---
 ## Structural polymorphism - problem
