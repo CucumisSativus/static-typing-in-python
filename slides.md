@@ -1,4 +1,3 @@
----
 class: center, middle
 
 # Static type checking in Python
@@ -131,7 +130,8 @@ class Vicious:
         self.member = 's'
 ```
 ```
-Incompatible types in assignment (expression has type "str", variable has type "int")
+Incompatible types in assignment 
+(expression has type "str", variable has type "int")
 ```
 
 ---
@@ -194,7 +194,23 @@ error: Return statement in function which does not return
 * Can be very useful, I will show it later
 
 ---
+### Middle way conclusion
 
+* you can annotate your code with type annotations
+
+--
+
+* you can check them with mypy
+
+--
+
+* you don't have to type every line - function arguments and returns are enough
+
+---
+class: center, middle
+
+## More advanced types
+---
 
 ## Union types
 
@@ -259,7 +275,7 @@ error: Incompatible return value type (got "None", expected "str")
 
 ---
 
-## Type guards
+## Type guards (type narrowing)
 
 ```python
 from typing import Optional
@@ -387,6 +403,36 @@ send_email(Employee("email", "employee_id"))
 * Big disadvantage is that you cannot track implementations - as opposed to inheritance
 
 ---
+## Generics
+
+```python
+from typing import TypeVar, Generic
+
+T = TypeVar('T')
+
+class MyList(Generic[T]):
+    def append(self, value: T) -> None:
+        pass
+
+    def pop(self) -> T:
+        pass
+
+intlist = MyList[int]()
+intlist.append(5)
+value: int = intlist.pop()
+
+intlist.append("str")
+# argument 1 to "append" of "MyList" 
+# has incompatible type "str"; expected "int"
+
+```
+---
+### Generics
+* used when we want to have a class, that does not care about what is inside
+* gives guarantees that `T` is always the same - `MyList[int]` always work with `int`
+* generic parameter says `fill this hole to have a complete type`
+* you cannot use just `MyList`, its not a complete type
+---
 
 ## New Types
 
@@ -432,7 +478,41 @@ find_company_order(order_id, company_id)
 
 ---
 
+## Conclusion almost at the end
+
+* When you have multiple types that are exclusive A or B you can use union types
+
+--
+
+* You can use Optional to mark nullable fields for additional safety
+
+--
+
+* Type guards make it easy to work union types
+
+--
+
+* Mypy can check if you really handled all the cases
+
+--
+
+* Protocols allow for a lot of flexibility
+
+--
+
+* Generics can be used when you don't care about the type (but still you care about typing)
+
+--
+
+* New Types are one more level for your safety
+
+---
+
+class: center, middle
+
 ## When mypy falls short
+---
+
 ### Untyped argument
 
 ```python
@@ -453,37 +533,8 @@ Success: no issues found in 1 source file
 Because of gradual typing filosophy, it fails siletly
 ---
 
-## Generics
 
-```python
-from typing import TypeVar, Generic
 
-T = TypeVar('T')
-
-class MyList(Generic[T]):
-    def append(self, value: T) -> None:
-        pass
-
-    def pop(self) -> T:
-        pass
-
-intlist = MyList[int]()
-intlist.append(5)
-value: int = intlist.pop()
-
-intlist.append("str")
-# argument 1 to "append" of "MyList" 
-# has incompatible type "str"; expected "int"
-
-```
----
-### Generics
-* used when we want to have a class, that does not care about what is inside
-* gives guarantees that `T` is always the same - `MyList[int]` always work with `int`
-* generic parameter says `fill this hole to have a complete type`
-* you cannot use just `MyList`, its not a complete type
-
-## When mypy falls short
 ### Untyped return
 
 ```python
@@ -504,7 +555,6 @@ Success: no issues found in 1 source file
 Because of gradual typing filosophy, it fails siletly
 ---
 
-## When mypy falls short
 ### Untyped import
 
 ```python
@@ -563,6 +613,9 @@ In all those situations mypy is doing a fallback to *Any* = no type check
 class: center, middle
 
 ## Solution
+
+--
+
 ### mypy --strict
 ---
 
