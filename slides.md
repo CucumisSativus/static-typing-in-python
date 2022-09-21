@@ -1,11 +1,7 @@
+---
 class: center, middle
 
-## 8/10 most common JavaScript errors could be spotted during type check
-#### according to  "Top 10 JavaScript errors from 1000+ projects" from [rollbar](https://rollbar.com/blog/top-10-javascript-errors-from-1000-projects-and-how-to-avoid-them/#)
-
-???
-
-In 2018 ROLLBAR
+# Static type checking in Python
 ---
 
 ## About me
@@ -14,20 +10,18 @@ In 2018 ROLLBAR
 #### Software developer at Threatray
 
 ---
-class: center, middle
-
-# Static type checking in Python
----
 
 ## Agenda
 
 1. what is mypy
+1. type inference
 1. type annotations 
 1. special types
 1. union types
 1. type guards
 1. structural polymorphism
 1. new types
+1. generics
 1. problems with mypy
 
 ---
@@ -95,6 +89,52 @@ error: Argument 1 to "function2" has incompatible type
 Even though result1 is not explicitly typed, mypy gets the type right
 
 ---
+
+## Type inference in classes
+
+```python
+class MyClass:
+    def __init__(self, attr: int) -> None:
+        self.attr = attr
+
+
+MyClass(10).attr + 'b'
+```
+
+```
+error: Unsupported operand types for + ("int" and "str")
+```
+
+---
+
+## Type inference in class with dynamic context
+
+``` python
+class Vicious:
+    def just_method(self) -> None:
+        self.member = 1
+
+v = Vicious()
+v.just_method()
+v.member + 's'
+```
+---
+
+## Type inference in class with dynamic context
+
+```python
+class Vicious:
+    def just_method(self) -> None:
+        self.member = 1
+    
+    def another_method(self) -> None:
+        self.member = 's'
+```
+```
+Incompatible types in assignment (expression has type "str", variable has type "int")
+```
+
+---
 ## Possible type annotations
 
 * numbers (`int`, `float`, `Decimal` ...)
@@ -105,6 +145,7 @@ Even though result1 is not explicitly typed, mypy gets the type right
 * `Optional`
 * lambdas (`Callable[[int], str]`)
 * special types `Any` and `NoReturn`
+* generics
 
 ---
 ## Any
@@ -412,6 +453,35 @@ Success: no issues found in 1 source file
 Because of gradual typing filosophy, it fails siletly
 ---
 
+## Generics
+
+```python
+from typing import TypeVar, Generic
+
+T = TypeVar('T')
+
+class MyList(Generic[T]):
+    def append(self, value: T) -> None:
+        pass
+
+    def pop(self) -> T:
+        pass
+
+intlist = MyList[int]()
+intlist.append(5)
+value: int = intlist.pop()
+
+intlist.append("str")
+# argument 1 to "append" of "MyList" 
+# has incompatible type "str"; expected "int"
+
+```
+---
+### Generics
+* used when we want to have a class, that does not care about what is inside
+* gives guarantees that `T` is always the same - `MyList[int]` always work with `int`
+* generic parameter says `fill this hole to have a complete type`
+* you cannot use just `MyList`, its not a complete type
 
 ## When mypy falls short
 ### Untyped return
@@ -489,7 +559,11 @@ In all those situations mypy is doing a fallback to *Any* = no type check
 * untyped arguments
 * untyped return
 * import from untyped library (if import error is ignored)
+---
+class: center, middle
 
+## Solution
+### mypy --strict
 ---
 
 ## Conclusion
