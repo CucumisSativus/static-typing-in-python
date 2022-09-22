@@ -117,6 +117,11 @@ v = Vicious()
 v.just_method()
 v.member + 's'
 ```
+
+```
+Unsupported operand types for + ("int" and "str")
+```
+
 ---
 
 ## Type inference in class with dynamic context
@@ -273,6 +278,13 @@ error: Incompatible return value type (got "None", expected "str")
 
 ---
 ## Optional
+
+```python
+from typing import Optional
+
+def function() -> Optional[str]:
+    return None
+```
 
 * `Optional[T]` is `Union[T, None]`
 * Type safe way to indicate that given type can be nullable
@@ -435,7 +447,7 @@ intlist.append("str")
 * used when we want to have a class, that does not care about what is inside
 * gives guarantees that `T` is always the same - `MyList[int]` always work with `int`
 * generic parameter says `fill this hole to have a complete type`
-* you cannot use just `MyList`, its not a complete type
+* if you don't pass type explicitly, its inferred to be Any - no type checking
 ---
 
 ## New Types
